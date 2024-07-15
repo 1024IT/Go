@@ -1,4 +1,4 @@
-# version: '3'
+version: "3"
 services:
   # APIに関する設定
   api:
@@ -27,3 +27,13 @@ services:
       - "80:80"
     depends_on:
       - api
+  # DBに関する設定
+  db:
+    container_name: go_sample_db
+    image: mysql:8.0.32
+    env_file:
+      - ./.env
+    ports:
+      - 3306:3306
+    volumes:
+      - ./tmp/db:/var/lib/mysql

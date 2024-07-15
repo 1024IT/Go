@@ -1,0 +1,50 @@
+name: go_sample github actions
+
+on:
+  push:
+
+jobs:
+  test:
+    name: Run Postman Api Tests
+    runs-on: ubuntu-latest
+    # 使用する環境変数定義の指定
+    environment: dev
+    # 処理の実行
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Postman CLI install
+        run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      # .envの作成
+      - name: Create .env
+        run: touch .env
+
+      - name: Add environment variable to .env
+        run: |
+          echo ENV=${{secrets.ENV}} >> .env
+          echo TZ=${{secrets.TZ}} >> .env
+          echo MYSQL_DATABASE=${{secrets.MYSQL_DATABASE}} >> .env
+          echo MYSQL_USER=${{secrets.MYSQL_USER}} >> .env
+          echo MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD}} >> .env
+          echo MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD}} >> .env
+
+      # コンテナのビルドと起動
+      - name: docker compose build --no-cache
+        run: docker compose build --no-cache
+
+      - name: docker compose up -d
+        run: docker compose up -d
+
+      # コンテナが立ち上がり切るまでの待機処理
+      - name: sleeep 30
+        run: sleep 30
+
+      # seederの実行
+      - name: docker compose exec api go run cmd/seeder.go
+        run: docker compose exec api go run cmd/seeder.go
+
+      # テストの実行
+      - name: postman collection run
+        run: postman collection run src/postman/go_sample_collection.postman_collection.json

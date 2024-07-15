@@ -1,11 +1,14 @@
-# Nginxのバージョンは軽量版の「alpine」
-FROM nginx:alpine
+# 2023年3月時点の最新版goの軽量版「alpine」
+FROM golang:1.20.2-alpine
 
-# インクルード用のディレクトリ内を削除
-RUN rm -f /etc/nginx/conf.d/*
+# インストール可能なパッケージ一覧の更新
+RUN apk update && \
+    apk upgrade && \
+    # パッケージのインストール（--no-cacheでキャッシュ削除）
+    apk add --no-cache \
+            git \
+            gcc \
+            musl-dev
 
-# Nginxの設定ファイルをコンテナにコピー
-ADD ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-# ビルド完了後にNginxを起動
-CMD /usr/sbin/nginx -g 'daemon off;' -c /etc/nginx/nginx.conf
+# 作業ディレクトリの設定
+WORKDIR /go/src
