@@ -16,7 +16,8 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   # Webサーバーに関する設定
   web:
     container_name: go_sample_web
