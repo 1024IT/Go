@@ -39,7 +39,7 @@ jobs:
 
       # コンテナが立ち上がり切るまでの待機処理
       - name: sleeep 30
-        run: sleep 30
+        run: sleep 60
 
       # seederの実行
       - name: docker compose exec api go run cmd/seeder.go
